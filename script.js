@@ -10,9 +10,17 @@ const $=s=>document.querySelector(s), esc=x=>String(x??"").replace(/[&<>"']/g,m=
 function save(){localStorage.setItem(STORE,JSON.stringify(d))}
 function toast(x){let t=$("#toast");t.textContent=x;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2000)}
 function date(x){return new Intl.DateTimeFormat("ku-IQ",{year:"numeric",month:"long",day:"numeric"}).format(new Date(x+"T12:00:00"))}
+function sortData(){
+  // یانەکان: خاڵ → جیاوازی گۆڵ → گۆڵکردن
+  d.clubs.sort((a,b)=>(b[4]-a[4]) || ((b[2]-b[3])-(a[2]-a[3])) || (b[2]-a[2]) || a[0].localeCompare(b[0]));
+  // گۆڵ و ئاسیست: ژمارەی زۆرتر لە سەرەوە
+  d.goals.sort((a,b)=>(b[2]-a[2]) || a[0].localeCompare(b[0]));
+  d.assists.sort((a,b)=>(b[2]-a[2]) || a[0].localeCompare(b[0]));
+}
 function render(){
+sortData();
 let s=d.settings;["heroEyebrow","heroTitle","heroText","clubsTitle","matchesTitle","historyTitle","goalsTitle","assistsTitle"].forEach(k=>{let el=$("#"+k);if(el)el.textContent=s[k]});
-$("#clubsTable").innerHTML=d.clubs.map(c=>`<div class="table-row"><span class="club"><i class="club-logo">${esc(c[5])}</i>${esc(c[0])}</span><span>${c[1]}</span><span>${c[2]}</span><span>${c[3]}</span><span class="points">${c[4]}</span></div>`).join("");
+$("#clubsTable").innerHTML=d.clubs.map(c=>`<div class="table-row"><span class="club"><b class="rank-badge">${d.clubs.indexOf(c)+1}</b><i class="club-logo">${c[5]&&String(c[5]).startsWith("data:")?`<img src="${esc(c[5])}" alt="">`:esc(c[5])}</i>${esc(c[0])}</span><span>${c[1]}</span><span>${c[2]}</span><span>${c[3]}</span><span class="points">${c[4]}</span></div>`).join("");
 $("#upcoming").innerHTML=d.upcoming.map(m=>`<div class="match-card"><div class="match-meta">📅 ${date(m[2])} &nbsp; • &nbsp; ⏰ ${esc(m[3])}</div><div class="teams"><div class="team"><div class="team-logo">${esc(m[4])}</div><b>${esc(m[0])}</b></div><div class="vs">VS</div><div class="team"><div class="team-logo">${esc(m[5])}</div><b>${esc(m[1])}</b></div></div></div>`).join("");
 $("#history").innerHTML=d.history.map(m=>`<div class="history-item"><div><b>${esc(m[0])} — ${esc(m[1])}</b><div class="scorers">${date(m[2])} • ${m[3]} • ${(m[6]||[]).map(esc).join(" | ")}</div></div><div class="score">${m[4]} — ${m[5]}</div></div>`).join("");
 stats("#goalsList",d.goals,"گۆڵ");stats("#assistsList",d.assists,"ئاسیست");
@@ -21,12 +29,40 @@ renderEditors();
 function stats(sel,list,label){$(sel).innerHTML=list.map((p,i)=>`<div class="stat"><div class="rank">#${i+1} • ${label}</div><h3>${esc(p[0])}</h3><div class="rank">${esc(p[1])}</div><div class="num">${p[2]}</div></div>`).join("")}
 function renderEditors(){
 $("#eHeroTitle").value=d.settings.heroTitle;$("#eHeroText").value=d.settings.heroText;$("#eClubsTitle").value=d.settings.clubsTitle;
-$("#clubAdminList").innerHTML=d.clubs.map((c,i)=>`<div class="row-editor" data-i="${i}"><input value="${esc(c[0])}" placeholder="ناوی یانە"><input type="number" value="${c[1]}" placeholder="یاری"><input type="number" value="${c[2]}" placeholder="GF"><input type="number" value="${c[3]}" placeholder="GA"><input type="number" value="${c[4]}" placeholder="خاڵ"><input value="${esc(c[5])}" placeholder="لۆگۆ"><button class="remove" onclick="removeClub(${i})">×</button></div>`).join("");
+$("#clubAdminList").innerHTML=d.clubs.map((c,i)=>`<div class="row-editor club-editor" data-i="${i}">
+<input value="${esc(c[0])}" placeholder="ناوی یانە">
+<input type="number" value="${c[1]}" placeholder="یاری">
+<input type="number" value="${c[2]}" placeholder="GF">
+<input type="number" value="${c[3]}" placeholder="GA">
+<input type="number" value="${c[4]}" placeholder="خاڵ">
+<div class="logo-upload"><label class="logo-pick">📷 لۆگۆ<input class="club-logo-file" type="file" accept="image/*" data-i="${i}"></label><img src="${esc(c[5]||"")}" class="preview-logo ${c[5]&&c[5].startsWith("data:")?"":"hidden"}"></div>
+<button class="remove" onclick="removeClub(${i})">×</button></div>`).join("");
+document.querySelectorAll(".club-logo-file").forEach(inp=>inp.onchange=handleLogo);
 $("#matchAdminList").innerHTML=d.upcoming.map((m,i)=>`<div class="row-editor match"><input value="${esc(m[0])}" placeholder="یانەی یەکەم"><input value="${esc(m[1])}" placeholder="یانەی دووەم"><input type="date" value="${m[2]}"><input type="time" value="${m[3]}"><input value="${esc(m[4])}" placeholder="لۆگۆ"><input value="${esc(m[5])}" placeholder="لۆگۆ"><button class="remove" onclick="removeMatch(${i})">×</button></div>`).join("");
 makePlayerEditor("#goalAdminList",d.goals,"goal");makePlayerEditor("#assistAdminList",d.assists,"assist");
 }
 function makePlayerEditor(sel,list,type){$(sel).innerHTML=list.map((p,i)=>`<div class="row-editor"><input value="${esc(p[0])}" placeholder="ناوی یاریزان"><input value="${esc(p[1])}" placeholder="یانە"><input type="number" value="${p[2]}" min="0" placeholder="${type==="goal"?"گۆڵ":"ئاسیست"}><button class="remove" onclick="removePlayer('${type}',${i})">×</button></div>`).join("")}
-function readRows(sel,n){return [...document.querySelectorAll(sel+" .row-editor")].map(r=>[...r.querySelectorAll("input")].map(x=>x.type==="number"?Number(x.value):x.value))}
+function readRows(sel,n){
+return [...document.querySelectorAll(sel+" .row-editor")].map((r,i)=>{
+  const inputs=[...r.querySelectorAll("input:not([type=file])")];
+  return inputs.map(x=>x.type==="number"?Number(x.value):x.value);
+});
+}
+function handleLogo(e){
+  const file=e.target.files?.[0]; if(!file) return;
+  if(!file.type.startsWith("image/")) return toast("تکایە تەنها وێنە هەڵبژێرە");
+  const reader=new FileReader();
+  reader.onload=()=>{
+    const i=Number(e.target.dataset.i);
+    if(d.clubs[i]){
+      d.clubs[i][5]=reader.result;
+      save(); render();
+      toast("لۆگۆی یانەکە دانرا");
+      activateEditor("clubEditor");
+    }
+  };
+  reader.readAsDataURL(file);
+}
 function removeClub(i){d.clubs.splice(i,1);save();render()} function removeMatch(i){d.upcoming.splice(i,1);save();render()} function removePlayer(t,i){d[t==="goal"?"goals":"assists"].splice(i,1);save();render()}
 document.querySelectorAll(".nav").forEach(b=>b.onclick=()=>{document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));b.classList.add("active");$("#"+b.dataset.page).classList.add("active");$("#sidebar").classList.remove("open")});
 $("#menuBtn").onclick=()=>$("#sidebar").classList.toggle("open");$("#themeBtn").onclick=()=>document.body.classList.toggle("light");
@@ -40,7 +76,15 @@ $("#addMatch").onclick=()=>{d.upcoming.push(["Home FC","Away FC","2026-09-25","1
 $("#addGoal").onclick=()=>{d.goals.push(["یاریزانی نوێ","یانە",0]);render()};
 $("#addAssist").onclick=()=>{d.assists.push(["یاریزانی نوێ","یانە",0]);render()};
 document.querySelector(".save-home").onclick=()=>{d.settings.heroTitle=$("#eHeroTitle").value;d.settings.heroText=$("#eHeroText").value;d.settings.clubsTitle=$("#eClubsTitle").value;save();render();toast("سەرەکی نوێکرایەوە")};
-document.querySelector(".save-clubs").onclick=()=>{d.clubs=readRows("#clubAdminList",6).map(x=>[x[0],+x[1],+x[2],+x[3],+x[4],x[5]]);save();render();toast("یانەکان پاشەکەوت کران")};
+document.querySelector(".save-clubs").onclick=()=>{
+  const rows=[...document.querySelectorAll("#clubAdminList .row-editor")];
+  d.clubs=rows.map((r,i)=>{
+    const inputs=[...r.querySelectorAll("input:not([type=file])")];
+    const x=inputs.map(v=>v.type==="number"?Number(v.value):v.value);
+    return [x[0],+x[1],+x[2],+x[3],+x[4],x[5]||d.clubs[i]?.[5]||"⚽"];
+  });
+  save();render();toast("یانەکان پاشەکەوت کران و ریزبەندی نوێکرایەوە")
+};
 document.querySelector(".save-matches").onclick=()=>{d.upcoming=readRows("#matchAdminList").map(x=>[x[0],x[1],x[2],x[3],x[4],x[5]]);save();render();toast("یارییەکان نوێکرانەوە")};
 document.querySelector(".save-goals").onclick=()=>{d.goals=readRows("#goalAdminList").map(x=>[x[0],x[1],+x[2]]);save();render();toast("گۆڵەکان نوێکرانەوە")};
 document.querySelector(".save-assists").onclick=()=>{d.assists=readRows("#assistAdminList").map(x=>[x[0],x[1],+x[2]]);save();render();toast("ئاسیستەکان نوێکرانەوە")};
