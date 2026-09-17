@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SportHub Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rudaw:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <div class="brand"><div class="brand-logo">⚽</div><div><b>SportHub</b><small>SPORTS MANAGEMENT</small></div></div>
+  <div class="top-actions"><button class="icon-btn" id="themeBtn">◐</button><button class="icon-btn" id="menuBtn">☰</button></div>
+</header>
+
+<aside class="sidebar" id="sidebar">
+  <div class="side-brand"><span>⚡</span><div><b>SportHub Pro</b><small>CONTROL CENTER</small></div></div>
+  <nav>
+    <button class="nav active" data-page="home">🏆 <span>سەرەکی</span></button>
+    <button class="nav" data-page="matches">📅 <span>یارییەکان</span></button>
+    <button class="nav" data-page="goals">⚽ <span>گۆڵەکان</span></button>
+    <button class="nav" data-page="assists">🎯 <span>ئاسیستەکان</span></button>
+    <button class="nav" data-page="admin">🔐 <span>ئادمین</span></button>
+  </nav>
+  <small class="side-footer">SPORTS • LIVE • STATS</small>
+</aside>
+
+<main class="content">
+<section class="page active" id="home">
+  <div class="hero">
+    <div><span class="eyebrow" id="heroEyebrow">LIVE SPORTS DASHBOARD</span><h1 id="heroTitle">دنیای وەرزش لە یەک شوێن</h1><p id="heroText">یانەکان، یارییەکان، گۆڵ و ئاسیستەکان بە شێوەیەکی پڕۆفیشناڵ.</p></div>
+    <div class="hero-ball">⚽</div>
+  </div>
+  <div class="section-head"><h2 id="clubsTitle">خشتەی یانەکان</h2><button class="edit-section" data-edit="home">✎ دەستکاری</button></div>
+  <div class="table-card"><div class="table-row head"><span>یانە</span><span>یاری</span><span>گۆڵکردن</span><span>گۆڵ لێ کران</span><span>خاڵ</span></div><div id="clubsTable"></div></div>
+</section>
+
+<section class="page" id="matches">
+  <div class="section-head page-title"><div><span class="eyebrow">MATCH CENTER</span><h1 id="matchesTitle">یارییەکان</h1></div><button class="edit-section" data-edit="matches">✎ دەستکاری</button></div>
+  <div id="upcoming"></div>
+  <div class="section-head"><h2 id="historyTitle">مێژووی یاریەکان</h2><button class="edit-section" data-edit="history">✎ دەستکاری</button></div>
+  <div class="history" id="history"></div>
+</section>
+
+<section class="page" id="goals">
+  <div class="section-head page-title"><div><span class="eyebrow">TOP SCORERS</span><h1 id="goalsTitle">گۆڵەکان</h1></div><button class="edit-section" data-edit="goals">✎ دەستکاری</button></div>
+  <div class="stats-grid" id="goalsList"></div>
+</section>
+
+<section class="page" id="assists">
+  <div class="section-head page-title"><div><span class="eyebrow">TOP ASSISTS</span><h1 id="assistsTitle">ئاسیستەکان</h1></div><button class="edit-section" data-edit="assists">✎ دەستکاری</button></div>
+  <div class="stats-grid" id="assistsList"></div>
+</section>
+
+<section class="page" id="admin">
+  <div class="login-box" id="loginBox"><div class="lock">🔐</div><span class="eyebrow">ADMIN ACCESS</span><h1>بەشی ئادمین</h1><p>تەنها یەک ئادمین دەتوانێت ناوەڕۆکی هەموو بەشەکان بەڕێوەببات.</p><form id="login"><input id="adminName" placeholder="ناوی ئادمین" required><input id="adminPass" type="password" placeholder="کۆدی نهێنی" required><button class="primary">چوونەژوورەوە</button><small id="loginMsg"></small></form></div>
+  <div class="admin-box hidden" id="adminBox"><div class="admin-head"><div><span class="eyebrow">MASTER CONTROL</span><h1>کۆنترۆڵی تەواوی وێبسایت</h1></div><button class="danger" id="logout">دەرچوون</button></div>
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-editor="homeEditor">🏆 سەرەکی</button>
+      <button class="admin-tab" data-editor="clubEditor">🏟️ یانەکان</button>
+      <button class="admin-tab" data-editor="matchEditor">📅 یارییەکان</button>
+      <button class="admin-tab" data-editor="goalEditor">⚽ گۆڵەکان</button>
+      <button class="admin-tab" data-editor="assistEditor">🎯 ئاسیست</button>
+    </div>
+    <div class="editor active" id="homeEditor">
+      <h3>✏️ دەستکاری سەرەکی</h3><label>ناونیشانی سەرەکی<input id="eHeroTitle"></label><label>دەقی سەرەکی<input id="eHeroText"></label><label>ناوی خشتە<input id="eClubsTitle"></label><button class="primary save-home">پاشەکەوتکردن</button>
+    </div>
+    <div class="editor" id="clubEditor"><h3>🏟️ بەڕێوەبردنی یانەکان</h3><div id="clubAdminList"></div><button class="add" id="addClub">＋ زیادکردنی یانە</button><button class="primary save-clubs">پاشەکەوتکردنی یانەکان</button></div>
+    <div class="editor" id="matchEditor"><h3>📅 بەڕێوەبردنی یارییەکان</h3><div id="matchAdminList"></div><button class="add" id="addMatch">＋ یاریی نوێ</button><button class="primary save-matches">پاشەکەوتکردن</button></div>
+    <div class="editor" id="goalEditor"><h3>⚽ بەڕێوەبردنی گۆڵەکان</h3><div id="goalAdminList"></div><button class="add" id="addGoal">＋ یاریزانی نوێ</button><button class="primary save-goals">پاشەکەوتکردن</button></div>
+    <div class="editor" id="assistEditor"><h3>🎯 بەڕێوەبردنی ئاسیستەکان</h3><div id="assistAdminList"></div><button class="add" id="addAssist">＋ یاریزانی نوێ</button><button class="primary save-assists">پاشەکەوتکردن</button></div>
+  </div>
+</section>
+</main>
+</div>
+<div class="modal hidden" id="modal"><div class="modal-card"><button class="close" id="closeModal">×</button><h2 id="modalTitle">دەستکاری</h2><div id="modalBody"></div></div></div>
+<div class="toast" id="toast"></div>
+<script src="script.js"></script>
+</body></html>
