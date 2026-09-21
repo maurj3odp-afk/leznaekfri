@@ -69,7 +69,18 @@ $("#menuBtn").onclick=()=>$("#sidebar").classList.toggle("open");$("#themeBtn").
 document.querySelectorAll(".edit-section").forEach(b=>b.onclick=()=>{document.querySelector('[data-page="admin"]').click();let map={home:"homeEditor",matches:"matchEditor",history:"matchEditor",goals:"goalEditor",assists:"assistEditor"};activateEditor(map[b.dataset.edit])});
 function activateEditor(id){document.querySelectorAll(".admin-tab").forEach(x=>x.classList.toggle("active",x.dataset.editor===id));document.querySelectorAll(".editor").forEach(x=>x.classList.toggle("active",x.id===id))}
 document.querySelectorAll(".admin-tab").forEach(b=>b.onclick=()=>activateEditor(b.dataset.editor));
-$("#login").onsubmit=e=>{e.preventDefault();if($("#adminPass").value===CODE){sessionStorage.setItem("sport_admin","1");$("#loginBox").classList.add("hidden");$("#adminBox").classList.remove("hidden");toast("بەخێربێیت بۆ کۆنترۆڵ سنتر")}else $("#loginMsg").textContent="کۆدی نهێنی هەڵەیە."};
+$("#login").onsubmit=e=>{
+  e.preventDefault();
+  if($("#adminPass").value === CODE){
+    sessionStorage.setItem("sport_admin","1");
+    $("#loginBox").classList.add("hidden");
+    $("#adminBox").classList.remove("hidden");
+    toast("بەخێربێیت بۆ کۆنترۆڵ سنتر");
+    $("#loginMsg").textContent="";
+  } else {
+    $("#loginMsg").textContent="کۆدی نهێنی هەڵەیە.";
+  }
+};
 $("#logout").onclick=()=>{sessionStorage.removeItem("sport_admin");$("#adminBox").classList.add("hidden");$("#loginBox").classList.remove("hidden")};
 $("#addClub").onclick=()=>{d.clubs.push(["New Club",0,0,0,0,"⚽"]);render()};
 $("#addMatch").onclick=()=>{d.upcoming.push(["Home FC","Away FC","2026-09-25","18:00","⚽","⚽"]);render()};
